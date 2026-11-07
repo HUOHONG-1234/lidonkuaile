@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>立冬快乐</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            background: radial-gradient(120% 80% at 50% 110%, #23356e 0%, #0d1236 38%, #060612 100%);
+            color: #fff;
+            font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            top: 7vh;
+            right: 11vw;
+            width: min(26vw, 170px);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #fffdf5, #ffe9b8 45%, rgba(255, 220, 150, 0) 72%);
+            filter: blur(1px);
+            opacity: .55;
+            pointer-events: none;
+            z-index: 0;
+            animation: moonGlow 6s ease-in-out infinite alternate;
+        }
+
+        @keyframes moonGlow {
+            from {
+                opacity: .38;
+                transform: scale(.97);
+            }
+
+            to {
+                opacity: .68;
+                transform: scale(1.03);
+            }
+        }
+
+        #snow {
+            position: fixed;
+            inset: 0;
+            display: block;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 0 24px;
+            transition: opacity .6s ease, transform .6s ease;
+        }
+
+        .content.hide {
+            opacity: 0;
+            transform: translateY(-18px) scale(.95);
+            pointer-events: none;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 8vw, 3.4rem);
+            margin: 0 0 14px;
+            letter-spacing: .16em;
+            text-indent: .16em;
+            background: linear-gradient(180deg, #fff 0%, #cfe4ff 60%, #8fb8ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: glow 3.2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 12px rgba(150, 200, 255, .35));
+            }
+
+            50% {
+                filter: drop-shadow(0 0 26px rgba(150, 200, 255, .8));
+            }
+        }
+
+        p {
+            margin: 0 0 32px;
+            color: #b9c9e8;
+            font-size: clamp(.9rem, 3.4vw, 1.05rem);
+            letter-spacing: .05em;
+        }
+
+        .btn {
+            position: relative;
+            padding: 13px 44px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            color: #fff;
+            border: 0;
+            border-radius: 999px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #ff5f6d, #ff2d55);
+            animation: pulse 2.4s ease-in-out infinite;
+            transition: transform .15s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px) scale(1.04);
+        }
+
+        .btn:active {
+            transform: scale(.95);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 77, 77, .55), 0 10px 30px -8px rgba(255, 45, 85, .9);
+            }
+
+            70% {
+                box-shadow: 0 0 0 18px rgba(255, 77, 77, 0), 0 10px 30px -8px rgba(255, 45, 85, .9);
+            }
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background: #000;
+            display: grid;
+            place-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .5s ease, visibility .5s;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .overlay video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: .78rem;
+            color: rgba(255, 255, 255, .45);
+            letter-spacing: .12em;
+            white-space: nowrap;
+            pointer-events: none;
+            animation: fadeHint 3s ease-in-out infinite;
+        }
+
+        @keyframes fadeHint {
+
+            0%,
+            100% {
+                opacity: .22;
+            }
+
+            50% {
+                opacity: .7;
+            }
+        }
+
+        .fallback {
+            position: absolute;
+            inset: 0;
+            display: none;
+            place-items: center;
+            text-align: center;
+            padding: 24px;
+            font-size: 1.05rem;
+            line-height: 2;
+            color: #9fb2d8;
+            letter-spacing: .06em;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="snow"></canvas>
+
+    <div class="content" id="content">
+        <h1>立冬快乐</h1>
+        <p>有一份立冬的礼物送给你，是否要收下？</p>
+        <button class="btn" id="startBtn">好！</button>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <video id="myVideo" src="https://badapple.mov/badapple.mov" playsinline preload="auto" loop></video>
+        <div class="fallback" id="fallback">🎬 视频跑丢了……<br>假装你已经看过了吧（逃</div>
+        <div class="hint">点击任意处关闭</div>
+    </div>
+
+    <script>
+        (function () {
+            const canvas = document.getElementById('snow');
+            const ctx = canvas.getContext('2d');
+            const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            let W = 0, H = 0;
+            const flakes = [];
+            const stars = [];
+
+            function newFlake(anywhere) {
+                return {
+                    x: Math.random() * W,
+                    y: anywhere ? Math.random() * H : -12,
+                    r: Math.random() * 2 + 0.7,
+                    vy: Math.random() * 0.9 + 0.35,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    alpha: Math.random() * 0.55 + 0.2,
+                    sway: Math.random() * Math.PI * 2,
+                    swaySpeed: Math.random() * 0.02 + 0.008,
+                    swayAmp: Math.random() * 0.6 + 0.2
+                };
+            }
+
+            function build() {
+                flakes.length = 0;
+                const count = Math.round(Math.min(160, Math.max(50, (W * H) / 9000)));
+                for (let i = 0; i < count; i++) flakes.push(newFlake(true));
+
+                stars.length = 0;
+                for (let i = 0; i < 70; i++) {
+                    stars.push({
+                        x: Math.random() * W,
+                        y: Math.random() * H * 0.72,
+                        r: Math.random() * 1.1 + 0.3,
+                        p: Math.random() * Math.PI * 2,
+                        s: Math.random() * 0.02 + 0.005
+                    });
+                }
+            }
+
+            function resize() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                W = window.innerWidth;
+                H = window.innerHeight;
+                canvas.width = Math.round(W * dpr);
+                canvas.height = Math.round(H * dpr);
+                canvas.style.width = W + 'px';
+                canvas.style.height = H + 'px';
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                build();
+            }
+
+            let last = performance.now();
+
+            function frame(t) {
+                const dt = Math.min(48, t - last);
+                last = t;
+                const k = dt / 16.67;
+
+                ctx.clearRect(0, 0, W, H);
+
+                for (const s of stars) {
+                    s.p += s.s * k;
+                    const a = 0.22 + 0.5 * (Math.sin(s.p) * 0.5 + 0.5);
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(200,220,255,' + a.toFixed(3) + ')';
+                    ctx.fill();
+                }
+
+                for (const f of flakes) {
+                    f.sway += f.swaySpeed * k;
+                    f.y += f.vy * k;
+                    f.x += (f.vx + Math.sin(f.sway) * f.swayAmp) * k;
+
+                    if (f.y > H + 12) {
+                        Object.assign(f, newFlake(false));
+                        f.y = -12;
+                    }
+                    if (f.x < -20) f.x = W + 20;
+                    if (f.x > W + 20) f.x = -20;
+
+                    ctx.beginPath();
+                    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255,255,255,' + f.alpha.toFixed(3) + ')';
+                    ctx.fill();
+                }
+
+                if (!reduceMotion) requestAnimationFrame(frame);
+            }
+
+            resize();
+            window.addEventListener('resize', resize);
+            requestAnimationFrame(frame);
+
+            const startBtn = document.getElementById('startBtn');
+            const content = document.getElementById('content');
+            const overlay = document.getElementById('overlay');
+            const video = document.getElementById('myVideo');
+            const fallback = document.getElementById('fallback');
+
+            let opened = false;
+            let loadTimer = null;
+
+            function showFallback() {
+                if (fallback.style.display === 'grid') return;
+                video.style.display = 'none';
+                fallback.style.display = 'grid';
+            }
+
+            function openGift() {
+                if (opened) return;
+                opened = true;
+
+                content.classList.add('hide');
+                overlay.classList.add('show');
+
+                try {video.currentTime = 0;} catch (e) { }
+
+                loadTimer = setTimeout(function () {
+                    if (video.readyState < 2) showFallback();
+                }, 8000);
+
+                const p = video.play();
+                if (p && typeof p.catch === 'function') {
+                    p.catch(function () {
+                        video.muted = true;
+                        const p2 = video.play();
+                        if (p2 && typeof p2.catch === 'function') p2.catch(showFallback);
+                    });
+                }
+            }
+
+            function closeGift() {
+                if (!opened) return;
+                opened = false;
+                overlay.classList.remove('show');
+                content.classList.remove('hide');
+                video.pause();
+                clearTimeout(loadTimer);
+            }
+
+            video.addEventListener('loadeddata', function () {clearTimeout(loadTimer);});
+            video.addEventListener('error', showFallback);
+
+            startBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                openGift();
+            });
+
+            overlay.addEventListener('click', closeGift);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeGift();
+            });
+        })();
+    </script>
+</body>
+
+</html>
